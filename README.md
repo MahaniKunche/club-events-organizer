@@ -1,240 +1,84 @@
-# club-events-organizer
-├── club-events/
-│   ├── public/
-│   │   └── index.html
-│   ├── src/
-│   │   ├── pages/
-│   │   │   ├── Login.js
-│   │   │   ├── Dashboard.js
-│   │   │   └── AddEvent.js
-│   │   ├── firebase.js
-│   │   ├── App.js
-│   │   ├── index.js
-│   │   └── index.css
-│   ├── .env
-│   ├── .gitignore
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   ├── README.md
-│   ├── package.json
-│   └── ...
+# 🎉 Club Events Organizer
 
-// src/firebase.js
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+A web application for college club organizers to log in, manage, and display upcoming events. Built with React, Tailwind CSS, and Firebase, this tool helps streamline event scheduling and coordination across campus clubs.
 
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_API_KEY,
-  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_APP_ID,
-};
+🔗 Live Demo  
+(You can add your deployed site URL here: e.g., https://yourusername.github.io/club-events-organizer)
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+---
 
-// src/pages/Login.js
-import React, { useState } from "react";
-import { auth } from "../firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+## 🚀 Features
 
-export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+- 🔐 Organizer Login (Firebase Authentication)
+- 📝 Add Upcoming Events (Title, Description, Date)
+- 📅 View All Events in Real-Time
+- 💻 Responsive & Clean UI (Tailwind CSS)
+- 🔥 Firebase Integration (Auth + Firestore)
 
-  const login = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate("/dashboard");
-    } catch (err) {
-      alert(err.message);
-    }
-  };
+---
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow w-96">
-        <h2 className="text-xl font-bold mb-4">Login</h2>
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full mb-2 p-2 border rounded"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full mb-4 p-2 border rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button onClick={login} className="w-full bg-blue-500 text-white p-2 rounded">
-          Login
-        </button>
-      </div>
-    </div>
-  );
-}
+## 🛠️ Tech Stack
 
-// src/pages/Dashboard.js
-import React, { useEffect, useState } from "react";
-import { db, auth } from "../firebase";
-import { collection, onSnapshot } from "firebase/firestore";
-import { signOut } from "firebase/auth";
-import { useNavigate, Link } from "react-router-dom";
+- React (via Create React App)
+- Tailwind CSS
+- React Router DOM
+- Firebase Authentication
+- Firebase Firestore (NoSQL)
 
-export default function Dashboard() {
-  const [events, setEvents] = useState([]);
-  const navigate = useNavigate();
+---
 
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "events"), (snapshot) => {
-      setEvents(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    });
-    return () => unsub();
-  }, []);
+## 📁 Folder Structure
 
-  const logout = () => {
-    signOut(auth);
-    navigate("/");
-  };
+club-events/
+├── public/                     # Public assets
+├── src/
+│   ├── pages/                  # Page components
+│   │   ├── Login.js            # Login form page
+│   │   ├── Dashboard.js        # Event listing page
+│   │   └── AddEvent.js         # Add new event form
+│   ├── firebase.js             # Firebase configuration
+│   ├── App.js                  # Main app component with routes
+│   ├── index.js                # React DOM entry point
+│   └── index.css               # Tailwind CSS import
+├── .env                        # Environment variables (Firebase keys)
+├── .gitignore                  # Files to ignore by git
+├── tailwind.config.js          # Tailwind config
+├── postcss.config.js           # PostCSS config
+├── package.json                # Project metadata & dependencies
+└── README.md                   # This documentation file
 
-  return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Club Events</h1>
-        <div>
-          <Link to="/add-event" className="bg-green-500 text-white px-4 py-2 rounded mr-2">
-            Add Event
-          </Link>
-          <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded">
-            Logout
-          </button>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {events.map((event) => (
-          <div key={event.id} className="bg-white p-4 rounded shadow">
-            <h2 className="text-lg font-bold">{event.title}</h2>
-            <p>{event.description}</p>
-            <p className="text-sm text-gray-500 mt-2">{event.date}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
-// src/pages/AddEvent.js
-import React, { useState } from "react";
-import { db } from "../firebase";
-import { addDoc, collection } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+---
 
-export default function AddEvent() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
-  const navigate = useNavigate();
+## ⚙️ Getting Started Locally
 
-  const submitEvent = async () => {
-    try {
-      await addDoc(collection(db, "events"), {
-        title,
-        description,
-        date,
-      });
-      navigate("/dashboard");
-    } catch (err) {
-      alert(err.message);
-    }
-  };
+1. Clone the repository:
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow w-96">
-        <h2 className="text-xl font-bold mb-4">Add New Event</h2>
-        <input
-          type="text"
-          placeholder="Title"
-          className="w-full mb-2 p-2 border rounded"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <textarea
-          placeholder="Description"
-          className="w-full mb-2 p-2 border rounded"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <input
-          type="date"
-          className="w-full mb-4 p-2 border rounded"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-        <button onClick={submitEvent} className="w-full bg-blue-500 text-white p-2 rounded">
-          Submit
-        </button>
-      </div>
-    </div>
-  );
-}
+```bash
+git clone https://github.com/your-username/club-events-organizer.git
+cd club-events-organizer
 
-// src/App.js
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import AddEvent from "./pages/AddEvent";
+2.Install dependencies:
+npm install
+'''
+ Set up Firebase:
 
-export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/add-event" element={<AddEvent />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
+Go to https://console.firebase.google.com
 
-// src/index.js
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import "./index.css";
+Create a new Firebase project
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+In the project, do the following:
 
-// src/index.css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+Enable Email/Password Authentication in Authentication → Sign-in method
 
-// .env (DO NOT COMMIT TO GITHUB)
+Create a Firestore database (start in test mode)
+
+Copy your Firebase config and create a .env file in your project root:
 REACT_APP_API_KEY=your_api_key
-REACT_APP_AUTH_DOMAIN=your_auth_domain
+REACT_APP_AUTH_DOMAIN=your_project.firebaseapp.com
 REACT_APP_PROJECT_ID=your_project_id
-REACT_APP_STORAGE_BUCKET=your_storage_bucket
-REACT_APP_MESSAGING_SENDER_ID=your_messaging_sender_id
+REACT_APP_STORAGE_BUCKET=your_bucket
+REACT_APP_MESSAGING_SENDER_ID=your_sender_id
 REACT_APP_APP_ID=your_app_id
+npm start
 
-// .gitignore
-node_modules/
-.env
-.DS_Store
-build/
